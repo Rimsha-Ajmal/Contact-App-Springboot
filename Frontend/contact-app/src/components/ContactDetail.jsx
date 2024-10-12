@@ -1,6 +1,6 @@
-import { React, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getContact, updatePhoto } from "../api/ContactService";
+import { getContact } from "../api/ContactService";
 import { toastError, toastSuccess } from "../api/ToastService";
 
 const ContactDetail = ({ updateContact, updateImage }) => {
@@ -17,15 +17,13 @@ const ContactDetail = ({ updateContact, updateImage }) => {
   });
 
   const { id } = useParams();
-  //   console.log(id)
 
   const fetchContact = async (id) => {
     try {
       const { data } = await getContact(id);
-      // console.log(data);
       setContact(data);
       console.log(data);
-      // toastSuccess("Contact retrieved.");
+      toastSuccess("Contact retrieved");
     } catch (error) {
       console.log(error);
       toastError(error.message);
@@ -44,9 +42,9 @@ const ContactDetail = ({ updateContact, updateImage }) => {
       await updateImage(formData);
       setContact((prev) => ({
         ...prev,
-        photoUrl: `${prev.photoUrl}?updated_at=${new Date().getTime()}`,
+        photoUrl: `${prev.photoUrl}?updated_at${new Date().getTime()}`,
       }));
-      toastSuccess("Photo updated.");
+      toastSuccess("Photo Updated");
     } catch (error) {
       console.log(error);
       toastError(error.message);
@@ -55,14 +53,13 @@ const ContactDetail = ({ updateContact, updateImage }) => {
 
   const onChange = (event) => {
     setContact({ ...contact, [event.target.name]: event.target.value });
-    console.log(contact);
   };
 
   const onUpdateContact = async (event) => {
     event.preventDefault();
     await updateContact(contact);
     fetchContact(id);
-    toastSuccess("Contact updated.");
+    toastSuccess("Contact Updated");
   };
 
   useEffect(() => {
@@ -71,7 +68,7 @@ const ContactDetail = ({ updateContact, updateImage }) => {
 
   return (
     <>
-      <Link to={"/"} className="link">
+      <Link to={"/contacts"} className="link">
         <i className="bi bi-arrow-left"></i> Back to list
       </Link>
       <div className="profile">
@@ -80,15 +77,14 @@ const ContactDetail = ({ updateContact, updateImage }) => {
             src={contact.photoUrl}
             alt={`Profile photo of ${contact.name}`}
           />
+          <div className="profile__metadata">
+            <p className="profile__name">{contact.name}</p>
+            <p className="profile__muted">JPG, GIF, or PNG. Max size of 10MG</p>
+            <button onClick={selectImage} className="btn">
+              <i className="bi bi-cloud-upload"></i> Change Photo
+            </button>
+          </div>
         </div>
-        <div className="profile_metadata">
-          <p className="profile__name">{contact.name}</p>
-          <p className="profile__muted">JPG, GIF, or PNG. Max size of 10MG</p>
-          <button onClick={selectImage} className="btn">
-            <i className="bi bi-cloud-upload"></i> Change Photo
-          </button>
-        </div>
-
         <div className="profile__settings">
           <div>
             <form onSubmit={onUpdateContact} className="form">
